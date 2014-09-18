@@ -1,6 +1,8 @@
 package apps.avaneesh.com.rockpaperscissors;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.content.Intent;
@@ -19,19 +21,25 @@ import android.speech.RecognizerIntent;
 
 import java.util.ArrayList;
 import  apps.avaneesh.com.rockpaperscissors.MyRecognitionListener;
+import  apps.avaneesh.com.rockpaperscissors.GameEngine;
 
 public class MainActivity extends Activity implements RecognitionListener{
     protected static final int RESULT_SPEECH = 1;
     private EditText txtSpeech;
     protected SpeechRecognizer sr;
+    GameEngine ge;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Intent intent = getIntent();
         String username =intent.getExtras().get("username").toString();
         TextView hello = (TextView)findViewById(R.id.txtHello);
         hello.setText("Hello "+ username +"!!");
+
+        //Start game Engine
+        ge = new GameEngine(getApplicationContext(), username);
 
         txtSpeech = (EditText) findViewById(R.id.txtSpeak);
         txtSpeech.setText("");
@@ -41,6 +49,13 @@ public class MainActivity extends Activity implements RecognitionListener{
 
         Button speak = (Button)findViewById(R.id.btnSpeak);
         speak.setOnClickListener(startVoiceRecognition);
+
+        Button rock = (Button)findViewById(R.id.btnRock);
+        Button paper = (Button)findViewById(R.id.btnPaper);
+        Button scissor = (Button)findViewById(R.id.btnScissors);
+        rock.setOnClickListener(CalculateResult);
+        paper.setOnClickListener(CalculateResult);
+        scissor.setOnClickListener(CalculateResult);
     }
 
 
@@ -121,6 +136,61 @@ public class MainActivity extends Activity implements RecognitionListener{
 
                 intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
                 sr.startListening(intent);
+        }
+    };
+    private View.OnClickListener CalculateResult = new View.OnClickListener(){
+        @Override
+        public void onClick(View view){
+            String choice[] = {"ROCK", "PAPER", "SCISSORS"};
+            String message = "";
+            String title = "";
+            int result = 0;
+            int bot_choice = 0;
+            if(view.getId() == R.id.btnRock){
+                result = ge.calc(0);
+                bot_choice = ge.getRandom();
+            }
+            else if(view.getId() == R.id.btnPaper){
+                result = ge.calc(1);
+                bot_choice = ge.getRandom();
+            }
+            else if(view.getId() == R.id.btnScissors){
+                result = ge.calc(2);
+                bot_choice = ge.getRandom();
+            }
+            message = choice[bot_choice] + "\n";
+
+            if(result == 1){
+                title = "You Win!!";
+            }
+            else if(result == -1){
+                title = "You Lose";
+            }
+            else if(result == 0){
+                title = "Its a draw!";
+            }
+            AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
+            b.setMessage(message);
+            b.setTitle(title);
+            b.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                   dialog.dismiss();
+                }
+            });
+            b.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = b.create();
+            TextView total_games = (TextView)findViewById(R.id.total_games);
+            TextView total_wins = (TextView)findViewById(R.id.wins_score);
+
+            total_games.setText(""+ge.getGames());
+            total_wins.setText(""+ge.getWins());
+            dialog.show();
+
         }
     };
 
