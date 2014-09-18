@@ -12,9 +12,9 @@ public class GameEngine
     final private int ROCK = 0;
     final private int PAPER = 1;
     final private int SCISSORS = 2;
+    final
 
     public int getRandom(){
-        this.bot_random = (int)(Math.random()*3);
         return this.bot_random;
     }
 
@@ -38,13 +38,17 @@ public class GameEngine
         this.user_loss++;
     }
 
+    public void setRandom(){
+        this.bot_random = (int)(Math.random()*3);
+    }
 
     public void calc(int y)
     {
         int x;
         String choice;
 
-        x = this.getRandom();
+        this.setRandom();
+        x= this.getRandom();
 
 
         if (y==ROCK && x==PAPER )
