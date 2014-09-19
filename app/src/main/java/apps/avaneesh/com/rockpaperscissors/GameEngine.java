@@ -23,10 +23,11 @@ public class GameEngine
     final private int PAPER = 1;
     final private int SCISSORS = 2;
     SQLiteDatabase database;
+    RPSDatabase db;
 
     GameEngine(Context context, String username){
         this.uname = username;
-        RPSDatabase db = new RPSDatabase(context);
+        db = new RPSDatabase(context);
         database = db .getWritableDatabase();
         Cursor c = database.rawQuery("SELECT username, wins, total_games from users WHERE username=?", new String[]{username});
         if(c.moveToFirst()){
@@ -129,6 +130,7 @@ public class GameEngine
     }
 
     public void saveData(){
+        database = db .getWritableDatabase();
         database.beginTransaction();
         try {
             ContentValues values = new ContentValues();

@@ -139,6 +139,8 @@ public class MyActivity extends Activity {
                     values.put("username", username);
                     values.put("age", age);
                     values.put("gender", gender);
+                    values.put("total_games", 0);
+                    values.put("wins", 0);
                     database.insert("users", null, values);
                     database.setTransactionSuccessful();
                     //Go To Main Activity

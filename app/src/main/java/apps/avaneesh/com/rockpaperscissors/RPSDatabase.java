@@ -14,6 +14,8 @@ public class RPSDatabase extends SQLiteOpenHelper  {
     public static final String COLUMN_UNAME = "username";
     public static final String COLUMN_AGE = "age";
     public static final String COLUMN_GENDER = "gender";
+    public static final String TOTAL_GAMES = "total_games";
+    public static final String WINS = "wins";
 
     private static final String DATABASE_NAME = "rockpaperscissors.db";
     private static final int DATABASE_VERSION = 1;
@@ -26,7 +28,9 @@ public class RPSDatabase extends SQLiteOpenHelper  {
             + TABLE_USERS + "(" + COLUMN_UNAME
             + " text primary key not null, "+ COLUMN_AGE
             + " integer null, " + COLUMN_GENDER
-            + " );";
+            + " text null, " + TOTAL_GAMES
+            + " integer null, " + WINS
+            + " integer null );";
 
     @Override
     public void onCreate(SQLiteDatabase database) {
