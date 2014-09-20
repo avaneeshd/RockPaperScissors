@@ -4,8 +4,6 @@ package apps.avaneesh.com.rockpaperscissors;
  * Created by Lenovo on 9/17/2014.
  */
 
-import apps.avaneesh.com.rockpaperscissors.RPSDatabase;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -77,54 +75,49 @@ public class GameEngine
         x = this.getRandom();
 
 
+        setGames();
         if (y==ROCK && x==PAPER )
         {
-            setGames();
             setLoss();
             result = -1;
         }
-        else if (y==ROCK && x==ROCK)
-        {
-            setGames();
-        }
+//        else if (y==ROCK && x==ROCK)
+//        {
+//            setGames();
+//        }
         else if (y==ROCK && x==SCISSORS)
         {
-            setGames();
             setWins();
             result = 1;
         }
         else if (y==PAPER && x==ROCK)
         {
-            setGames();
             setWins();
             result = 1;
         }
-        else if (y==PAPER && x==PAPER)
-        {
-            setGames();
-        }
+//        else if (y==PAPER && x==PAPER)
+//        {
+//            setGames();
+//        }
         else if (y==PAPER && x==SCISSORS)
         {
-            setGames();
             setLoss();
             result = -1;
         }
         else if (y==SCISSORS && x==ROCK)
         {
-            setGames();
             setLoss();
             result = -1;
         }
         else if (y==SCISSORS && x==PAPER)
         {
-            setGames();
             setWins();
             result = 1;
         }
-        else if (y==SCISSORS && x==SCISSORS)
-        {
-            setGames();
-        }
+//        else if (y==SCISSORS && x==SCISSORS)
+//        {
+//            setGames();
+//        }
         this.saveData();
         return result;
     }

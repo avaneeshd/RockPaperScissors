@@ -29,46 +29,56 @@
         android:layout_alignParentStart="true"
         android:layout_marginTop="31dp" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Speak"
-        android:id="@+id/btnSpeak"
-        android:layout_toEndOf="@+id/imageView"
-        android:layout_above="@+id/btnRock"
-        android:layout_toRightOf="@+id/imageView" />
-
     <EditText
+        android:clickable="false"
+        android:cursorVisible="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/txtSpeak"
+        android:width="200dp"
+        android:text="..."
+        android:height="40dp"
+        android:layout_marginTop="30dp"
         android:layout_below="@+id/txtHello"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:width="200dp" />
+        android:layout_alignParentStart="true" />
+
+    <ImageButton
+        android:id="@+id/btnSpeak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/imageView"
+        android:src="@android:drawable/ic_btn_speak_now"
+        android:layout_alignBottom="@+id/txtSpeak"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/imageView" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Rock"
         android:id="@+id/btnRock"
-        android:layout_toStartOf="@+id/btnSpeak"
-        android:layout_marginTop="36dp"
-        android:layout_toEndOf="@+id/txtHello"
+        android:layout_marginTop="40dp"
         android:layout_below="@+id/txtSpeak"
-        android:layout_alignLeft="@+id/btnPaper"
-        android:layout_alignStart="@+id/btnPaper" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Paper"
         android:id="@+id/btnPaper"
-        android:layout_toStartOf="@+id/btnSpeak"
-        android:layout_marginTop="49dp"
+        android:layout_marginTop="40dp"
         android:layout_below="@+id/btnRock"
-        android:layout_alignLeft="@+id/btnScissors"
-        android:layout_alignStart="@+id/btnScissors" />
+        android:layout_alignRight="@+id/btnRock"
+        android:layout_alignEnd="@+id/btnRock"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -77,8 +87,10 @@
         android:id="@+id/btnScissors"
         android:layout_marginTop="40dp"
         android:layout_below="@+id/btnPaper"
-        android:layout_toLeftOf="@+id/btnSpeak"
-        android:layout_toStartOf="@+id/btnSpeak" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"

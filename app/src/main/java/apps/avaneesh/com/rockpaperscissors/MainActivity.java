@@ -3,28 +3,23 @@ package apps.avaneesh.com.rockpaperscissors;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.content.Intent;
 import android.os.Bundle;
-import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.speech.RecognizerIntent;
+import android.widget.Toast;
 
 import java.util.ArrayList;
-import  apps.avaneesh.com.rockpaperscissors.MyRecognitionListener;
-import  apps.avaneesh.com.rockpaperscissors.GameEngine;
 
-public class MainActivity extends Activity implements RecognitionListener{
-    protected static final int RESULT_SPEECH = 1;
+public class MainActivity extends Activity implements View.OnClickListener{
+    protected static final int REQUEST_OK = 1;
+
     private EditText txtSpeech;
     protected SpeechRecognizer sr;
     GameEngine ge;
@@ -41,14 +36,7 @@ public class MainActivity extends Activity implements RecognitionListener{
         //Start game Engine
         ge = new GameEngine(getApplicationContext(), username);
 
-        txtSpeech = (EditText) findViewById(R.id.txtSpeak);
-        txtSpeech.setText("");
-        MyRecognitionListener listener = new MyRecognitionListener();
-        sr = SpeechRecognizer.createSpeechRecognizer(this);
-        sr.setRecognitionListener(listener);
-
-        Button speak = (Button)findViewById(R.id.btnSpeak);
-        speak.setOnClickListener(startVoiceRecognition);
+        findViewById(R.id.btnSpeak).setOnClickListener(this);
 
         Button rock = (Button)findViewById(R.id.btnRock);
         Button paper = (Button)findViewById(R.id.btnPaper);
@@ -56,6 +44,46 @@ public class MainActivity extends Activity implements RecognitionListener{
         rock.setOnClickListener(CalculateResult);
         paper.setOnClickListener(CalculateResult);
         scissor.setOnClickListener(CalculateResult);
+    }
+
+    public void onClick(View v) {
+        Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
+        try {
+            startActivityForResult(i, REQUEST_OK);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error initializing speech to text engine.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode==REQUEST_OK  && resultCode==RESULT_OK) {
+            ArrayList<String> thingsYouSaid = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            String[] recordedWords = thingsYouSaid.get(0).split(" ");
+            if(recordedWords[0].equals("Caesars") || recordedWords[0].equals("Seether")
+                    || recordedWords[0].equals("Jesus")){
+                recordedWords[0] = "scissors";
+            }
+            if(recordedWords[0].equals("rock") || recordedWords[0].equals("paper")
+                    || recordedWords[0].equals("scissors")){
+                ((TextView) findViewById(R.id.txtSpeak)).setText(recordedWords[0]);
+                showResult(recordedWords[0]);
+            }
+            else {
+                ((TextView) findViewById(R.id.txtSpeak)).setText("Try again!");
+                AlertDialog.Builder a = new AlertDialog.Builder(MainActivity.this);
+                a.setMessage("You have to speak only Rock, Paper or Scissors.");
+                a.setTitle("Try again!");
+                a.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+                a.create().show();
+            }
+        }
     }
 
 
@@ -78,121 +106,62 @@ public class MainActivity extends Activity implements RecognitionListener{
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onBeginningOfSpeech() {
-        Log.d("Speech", "onBeginningOfSpeech");
-    }
-
-    @Override
-    public void onBufferReceived(byte[] buffer) {
-        Log.d("Speech", "onBufferReceived");
-    }
-
-    @Override
-    public void onEndOfSpeech() {
-        Log.d("Speech", "onEndOfSpeech");
-    }
-
-    @Override
-    public void onError(int error) {
-        Log.d("Speech", "onError");
-    }
-
-    @Override
-    public void onEvent(int eventType, Bundle params) {
-        Log.d("Speech", "onEvent");
-    }
-
-    @Override
-    public void onPartialResults(Bundle partialResults) {
-        Log.d("Speech", "onPartialResults");
-    }
-
-    @Override
-    public void onReadyForSpeech(Bundle params) {
-        Log.d("Speech", "onReadyForSpeech");
-    }
-
-
-    @Override
-    public void onResults(Bundle results) {
-        Log.d("Speech", "onResults");
-        ArrayList strlist = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-        txtSpeech.setText(strlist.get(0).toString());
-
-    }
-
-    @Override
-    public void onRmsChanged(float rmsdB) {
-        Log.d("Speech", "onRmsChanged");
-    }
-
-    private View.OnClickListener startVoiceRecognition = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "voice.recognition.test");
-
-                intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-                sr.startListening(intent);
-        }
-    };
     private View.OnClickListener CalculateResult = new View.OnClickListener(){
         @Override
         public void onClick(View view){
-            String choice[] = {"ROCK", "PAPER", "SCISSORS"};
-            String message = "";
-            String title = "";
-            int result = 0;
-            int bot_choice = 0;
-            if(view.getId() == R.id.btnRock){
-                result = ge.calc(0);
-                bot_choice = ge.getRandom();
-            }
-            else if(view.getId() == R.id.btnPaper){
-                result = ge.calc(1);
-                bot_choice = ge.getRandom();
-            }
-            else if(view.getId() == R.id.btnScissors){
-                result = ge.calc(2);
-                bot_choice = ge.getRandom();
-            }
-            message = choice[bot_choice] + "\n";
-
-            if(result == 1){
-                title = "You Win!!";
-            }
-            else if(result == -1){
-                title = "You Lose";
-            }
-            else if(result == 0){
-                title = "Its a draw!";
-            }
-            AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
-            b.setMessage(message);
-            b.setTitle(title);
-            b.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                   dialog.dismiss();
-                }
-            });
-            b.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    // User cancelled the dialog
-                    dialog.dismiss();
-                }
-            });
-            AlertDialog dialog = b.create();
-            TextView total_games = (TextView)findViewById(R.id.total_games);
-            TextView total_wins = (TextView)findViewById(R.id.wins_score);
-
-            total_games.setText(""+ge.getGames());
-            total_wins.setText(""+ge.getWins());
-            dialog.show();
-
+            String buttonText = ((Button)view).getText().toString().toLowerCase();
+            showResult(buttonText);
         }
     };
 
+    private void showResult(String userChoice){
+        String choice[] = {"ROCK", "PAPER", "SCISSORS"};
+        String message = "";
+        String title = "";
+        int result = 0;
+        int bot_choice = 0;
+        if(userChoice.equals("rock")){
+            result = ge.calc(0);
+        }
+        else if(userChoice.equals("paper")){
+            result = ge.calc(1);
+        }
+        else if(userChoice.equals("scissors")){
+            result = ge.calc(2);
+        }
+        bot_choice = ge.getRandom();
+        message = choice[bot_choice] + "\n";
+
+        if(result == 1){
+            title = "You Win!!";
+        }
+        if(result == -1){
+            title = "You Lose";
+        }
+        if(result == 0){
+            title = "Its a draw!";
+        }
+        AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
+        b.setMessage(message);
+        b.setTitle(title);
+        b.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        b.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = b.create();
+        TextView total_games = (TextView)findViewById(R.id.total_games);
+        TextView total_wins = (TextView)findViewById(R.id.wins_score);
+
+        total_games.setText(""+ge.getGames());
+        total_wins.setText(""+ge.getWins());
+        dialog.show();
+    }
 
 }
