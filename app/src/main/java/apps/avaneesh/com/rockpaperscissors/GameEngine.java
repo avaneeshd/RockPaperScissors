@@ -20,17 +20,20 @@ public class GameEngine
     final private int ROCK = 0;
     final private int PAPER = 1;
     final private int SCISSORS = 2;
+    private String message =  null;
     SQLiteDatabase database;
     RPSDatabase db;
 
     GameEngine(Context context, String username){
         this.uname = username;
         db = new RPSDatabase(context);
-        database = db .getWritableDatabase();
+        database = db.getWritableDatabase();
         Cursor c = database.rawQuery("SELECT username, wins, total_games from users WHERE username=?", new String[]{username});
         if(c.moveToFirst()){
             if(c.getString(c.getColumnIndex("username")).equals(username)) {
-               if(c.getString(c.getColumnIndex("wins"))!=null){
+                System.out.println(c.getString((c.getColumnIndex("wins"))));
+                System.out.println(c.getString((c.getColumnIndex("total_games"))));
+               if(c.getString(c.getColumnIndex("wins"))!= null){
                    this.user_wins = Integer.parseInt(c.getString(c.getColumnIndex("wins")));
                }
                if(c.getString(c.getColumnIndex("total_games"))!=null){
@@ -54,6 +57,7 @@ public class GameEngine
     public void setWins(){
         this.user_wins++;
     }
+
     public void setGames(){
         this.user_games++;
     }
@@ -67,11 +71,20 @@ public class GameEngine
         this.bot_random = (int)(Math.random()*3);
     }
 
+    public void setMessage(String msg){
+        this.message = msg;
+    }
+    public String getMessage(){
+        return this.message;
+    }
+
     public int calc(int y){
         int x;
         String choice;
+
         int result = 0;
         this.setRandom();
+        this.setMessage("");
         x = this.getRandom();
 
 
@@ -80,6 +93,7 @@ public class GameEngine
         {
             setLoss();
             result = -1;
+            this.setMessage("Paper Covers Rock");
         }
 //        else if (y==ROCK && x==ROCK)
 //        {
@@ -89,11 +103,13 @@ public class GameEngine
         {
             setWins();
             result = 1;
+            this.setMessage("Rock Crushes Scissors");
         }
         else if (y==PAPER && x==ROCK)
         {
             setWins();
             result = 1;
+            this.setMessage("Paper Covers Rock");
         }
 //        else if (y==PAPER && x==PAPER)
 //        {
@@ -103,16 +119,19 @@ public class GameEngine
         {
             setLoss();
             result = -1;
+            this.setMessage("Scissor cuts Paper");
         }
         else if (y==SCISSORS && x==ROCK)
         {
             setLoss();
             result = -1;
+            this.setMessage("Rock Crushes Scissors");
         }
         else if (y==SCISSORS && x==PAPER)
         {
             setWins();
             result = 1;
+            this.setMessage("Scissor cuts Paper");
         }
 //        else if (y==SCISSORS && x==SCISSORS)
 //        {
@@ -123,14 +142,10 @@ public class GameEngine
     }
 
     public void saveData(){
-        database = db .getWritableDatabase();
+        database = db.getWritableDatabase();
         database.beginTransaction();
         try {
-            ContentValues values = new ContentValues();
-            values.put("total_games", this.getGames());
-            values.put("wins", this.getWins());
-            String name[] = {uname};
-            database.update("users", values, "username", name);
+            database.execSQL("UPDATE users SET total_games ="+ this.getGames()+ ", wins ="+ this.getWins()+" WHERE username ='"+ uname +"'");
             database.setTransactionSuccessful();
             Log.d("database", uname);
         }
