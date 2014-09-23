@@ -85,12 +85,13 @@
         android:layout_height="wrap_content"
         android:text="Scissors"
         android:id="@+id/btnScissors"
+        android:width="40dp"
         android:layout_marginTop="40dp"
         android:layout_below="@+id/btnPaper"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/btnPaper"
+        android:layout_alignEnd="@+id/btnPaper" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -98,7 +99,6 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/total_games"
         android:id="@+id/textView2"
-        android:layout_toStartOf="@+id/btnScissors"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -110,10 +110,7 @@
         android:text="@string/wins"
         android:id="@+id/textView3"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/btnScissors"
-        android:layout_toEndOf="@+id/btnScissors"
-        android:layout_alignRight="@+id/btnSpeak"
-        android:layout_alignEnd="@+id/btnSpeak" />
+        android:layout_alignLeft="@+id/btnSpeak" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -121,11 +118,10 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="0"
         android:id="@+id/total_games"
-        android:layout_toStartOf="@+id/textView3"
-        android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/txtSpeak"
-        android:layout_alignEnd="@+id/txtSpeak"
-        android:layout_toEndOf="@+id/textView2" />
+        android:layout_alignTop="@+id/textView2"
+        android:layout_toRightOf="@+id/textView2"
+        android:layout_toEndOf="@+id/textView2"
+        android:layout_marginLeft="20dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -135,6 +131,7 @@
         android:id="@+id/wins_score"
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/textView3"
-        android:layout_toEndOf="@+id/textView3" />
+        android:layout_toEndOf="@+id/textView3"
+        android:layout_marginLeft="20dp" />
 
 </RelativeLayout>

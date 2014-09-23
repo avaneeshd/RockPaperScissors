@@ -16,7 +16,7 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_splash">SplashActivity</string>
-    <string name="total_games">Total Games</string>
+    <string name="total_games">Total Games:</string>
     <string name="wins">Wins:</string>
 
 </resources>
