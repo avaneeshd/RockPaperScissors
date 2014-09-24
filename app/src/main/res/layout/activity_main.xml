@@ -27,111 +27,161 @@
         android:layout_below="@+id/imageView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="31dp" />
-
-    <EditText
-        android:clickable="false"
-        android:cursorVisible="false"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/txtSpeak"
-        android:width="200dp"
-        android:text="..."
-        android:height="40dp"
-        android:layout_marginTop="30dp"
-        android:layout_below="@+id/txtHello"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_marginTop="3dp" />
 
     <ImageButton
         android:id="@+id/btnSpeak"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/imageView"
-        android:src="@android:drawable/ic_btn_speak_now"
-        android:layout_alignBottom="@+id/txtSpeak"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_toRightOf="@+id/imageView" />
+        android:layout_toEndOf="@+id/textView2"
+        android:src="@drawable/microphone"
+        android:layout_above="@+id/tableRow"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="36dp" />
 
-    <Button
-        android:layout_width="wrap_content"
+
+    <TableRow
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Rock"
-        android:id="@+id/btnRock"
-        android:layout_marginTop="40dp"
-        android:layout_below="@+id/txtSpeak"
+        android:id="@+id/tableRow"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+        <Button
+            android:layout_width="105dp"
+            android:layout_height="wrap_content"
+            android:text="Rock"
+            android:id="@+id/btnRock"
+            android:layout_above="@+id/textView2"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Paper"
+            android:id="@+id/btnPaper"
+            android:layout_weight="1"
+            android:layout_above="@+id/btnRock"
+            android:layout_alignParentLeft="true" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scissors"
+            android:layout_weight="1"
+            android:id="@+id/btnScissors"
+            android:layout_above="@+id/btnPaper"
+            android:layout_alignParentLeft="true" />
+        </TableRow>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#ff28b738"
+        android:padding="5dp"
+        android:layout_below="@+id/txtHello"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginTop="34dp"
+        android:id="@+id/linearlayout1">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/total_games"
+            android:id="@+id/textView2"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="0"
+            android:id="@+id/total_games"
+            android:layout_toEndOf="@+id/textView2"
+            android:layout_toRightOf="@+id/textView2"
+            android:layout_alignRight="@+id/txtSpeak"
+            android:layout_alignEnd="@+id/txtSpeak"
+            android:layout_alignTop="@+id/textView2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/wins"
+            android:id="@+id/textView3"
+            android:layout_alignParentBottom="true"
+            android:layout_alignLeft="@+id/btnSpeak"
+            android:layout_alignStart="@+id/btnSpeak"
+            android:layout_marginLeft="120dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="0"
+            android:id="@+id/wins_score"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/textView3"
+            android:layout_alignRight="@+id/btnSpeak"
+            android:layout_alignEnd="@+id/btnSpeak"
+            android:layout_toRightOf="@+id/textView3" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imgYou"
+        android:src="@drawable/you"
+        android:layout_toEndOf="@+id/txtHello"
+        android:layout_toStartOf="@+id/btnSpeak"
+        android:layout_above="@+id/txtBot"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView2"
+        android:src="@drawable/vs"
+        android:layout_toEndOf="@+id/imgYou"
+        android:layout_above="@+id/txtSpeak"
+        android:layout_toLeftOf="@+id/imageView3"
+        android:layout_toStartOf="@+id/imageView3" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView3"
+        android:layout_toEndOf="@+id/btnSpeak"
+        android:src="@drawable/computer"
+        android:layout_alignBottom="@+id/imageView2"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
-    <Button
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Paper"
-        android:id="@+id/btnPaper"
-        android:layout_marginTop="40dp"
-        android:layout_below="@+id/btnRock"
-        android:layout_alignRight="@+id/btnRock"
-        android:layout_alignEnd="@+id/btnRock"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/txtBot"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:layout_alignRight="@+id/imageView3"
+        android:layout_alignEnd="@+id/imageView3"
+        android:width="120dp" />
 
-    <Button
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Scissors"
-        android:id="@+id/btnScissors"
-        android:width="40dp"
-        android:layout_marginTop="40dp"
-        android:layout_below="@+id/btnPaper"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/txtSpeak"
+        android:layout_toStartOf="@+id/btnSpeak"
+        android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignRight="@+id/btnPaper"
-        android:layout_alignEnd="@+id/btnPaper" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/total_games"
-        android:id="@+id/textView2"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/wins"
-        android:id="@+id/textView3"
-        android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/btnSpeak" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="0"
-        android:id="@+id/total_games"
-        android:layout_alignTop="@+id/textView2"
-        android:layout_toRightOf="@+id/textView2"
-        android:layout_toEndOf="@+id/textView2"
-        android:layout_marginLeft="20dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="0"
-        android:id="@+id/wins_score"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/textView3"
-        android:layout_toEndOf="@+id/textView3"
-        android:layout_marginLeft="20dp" />
+        android:gravity="center" />
 
 </RelativeLayout>

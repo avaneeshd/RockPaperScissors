@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class MainActivity extends Activity implements View.OnClickListener{
     protected static final int REQUEST_OK = 1;
 
-    private EditText txtSpeech;
+    private TextView txtSpeech;
     protected SpeechRecognizer sr;
     GameEngine ge;
     @Override
@@ -68,8 +68,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
             }
             if(recordedWords[0].equals("rock") || recordedWords[0].equals("paper")
                     || recordedWords[0].equals("scissors")){
-                ((TextView) findViewById(R.id.txtSpeak)).setText(recordedWords[0]);
-                showResult(recordedWords[0]);
+                ((TextView) findViewById(R.id.txtSpeak)).setText(recordedWords[0].toUpperCase());
+                showResult(recordedWords[0].toUpperCase());
             }
             else {
                 ((TextView) findViewById(R.id.txtSpeak)).setText("Try again!");
@@ -109,7 +109,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private View.OnClickListener CalculateResult = new View.OnClickListener(){
         @Override
         public void onClick(View view){
-            String buttonText = ((Button)view).getText().toString().toLowerCase();
+            String buttonText = ((Button)view).getText().toString().toUpperCase();
+            ((TextView) findViewById(R.id.txtSpeak)).setText(buttonText);
             showResult(buttonText);
         }
     };
@@ -120,16 +121,18 @@ public class MainActivity extends Activity implements View.OnClickListener{
         String title = "";
         int result = 0;
         int bot_choice = 0;
-        if(userChoice.equals("rock")){
+        if(userChoice.equals("ROCK")){
             result = ge.calc(0);
         }
-        else if(userChoice.equals("paper")){
+        else if(userChoice.equals("PAPER")){
             result = ge.calc(1);
         }
-        else if(userChoice.equals("scissors")){
+        else if(userChoice.equals("SCISSORS")){
             result = ge.calc(2);
         }
         bot_choice = ge.getRandom();
+        ((TextView)findViewById(R.id.txtBot)).setText(choice[bot_choice]);
+
         message = ge.getMessage();
 
         if(result == 1){

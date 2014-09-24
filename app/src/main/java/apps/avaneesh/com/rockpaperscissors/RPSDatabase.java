@@ -1,8 +1,5 @@
 package apps.avaneesh.com.rockpaperscissors;
 
-/**
- * Created by Avaneesh on 16/09/2014.
- */
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
