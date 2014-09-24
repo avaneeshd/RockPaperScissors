@@ -13,16 +13,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/txtUsername"
-        android:layout_toEndOf="@+id/lblUname"
         android:layout_marginTop="63dp"
         android:width="200dp"
-        android:text="@string/unameHint"
         android:focusable="true"
         android:layout_below="@+id/titleImage"
         android:layout_alignLeft="@+id/radioGroup"
         android:layout_alignStart="@+id/radioGroup"
         android:layout_alignRight="@+id/tableRow"
-        android:layout_alignEnd="@+id/tableRow" />
+        android:layout_alignEnd="@+id/tableRow"
+        android:hint="@string/unameHint" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -62,12 +61,11 @@
         android:inputType="number"
         android:ems="10"
         android:id="@+id/txtAge"
-        android:layout_toEndOf="@+id/lblUname"
-        android:text="@string/ageHint"
         android:layout_marginTop="34dp"
         android:layout_below="@+id/txtUsername"
         android:layout_alignLeft="@+id/txtUsername"
-        android:layout_alignStart="@+id/txtUsername" />
+        android:layout_alignStart="@+id/txtUsername"
+        android:hint="@string/ageHint" />
 
     <RadioGroup
         android:layout_width="wrap_content"
@@ -97,7 +95,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
         android:weightSum="1"
         android:id="@+id/tableRow">
 
@@ -106,19 +103,18 @@
             android:layout_height="wrap_content"
             android:text="@string/login"
             android:id="@+id/btnLogin"
-            android:layout_toStartOf="@+id/txtAge"
-            android:layout_toEndOf="@+id/lblAge"
             android:layout_alignParentBottom="true"
-            android:layout_weight="0.94" />
+            android:layout_weight="0.94"
+            android:layout_marginRight="10dp"
+            android:background="#ff19c415" />
 
         <Button
             android:layout_width="171dp"
             android:layout_height="wrap_content"
             android:text="@string/cancel"
             android:id="@+id/btnCancel"
-            android:layout_toEndOf="@+id/txtHello"
             android:layout_alignTop="@+id/btnLogin"
-            android:layout_alignParentEnd="true" />
+            android:background="#ff19c415" />
     </TableRow>
 
     <ImageView

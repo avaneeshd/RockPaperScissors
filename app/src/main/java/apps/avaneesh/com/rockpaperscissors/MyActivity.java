@@ -14,6 +14,9 @@ import android.view.View;
 import android.widget.Button;
 import android.view.View.OnFocusChangeListener;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+
 import apps.avaneesh.com.rockpaperscissors.RPSDatabase;
 
 public class MyActivity extends Activity {
@@ -24,12 +27,6 @@ public class MyActivity extends Activity {
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
-        //Clear Username Hint
-        EditText txtUsername = (EditText)findViewById(R.id.txtUsername);
-        txtUsername.setOnFocusChangeListener(textboxFocusListener);
-        //Clear Age Hint
-        EditText txtAge = (EditText)findViewById(R.id.txtAge);
-        txtAge.setOnFocusChangeListener(textboxFocusListener);
 
         //On Click cancel
         Button cancelBtn = (Button)findViewById(R.id.btnCancel);
@@ -65,31 +62,7 @@ public class MyActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private OnFocusChangeListener textboxFocusListener =  new OnFocusChangeListener() {
-        public void onFocusChange(View view, boolean gainFocus) {
-            //onFocus
-            if (gainFocus) {
-                //EditText e = (EditText)findViewById(R.id.txtUsername);
-                String text = ((EditText)view).getText().toString();
-                if(text.equals("Enter Username"))
-                    ((EditText) view).setText("");
-                else if(text.equals("Enter Age"))
-                    ((EditText) view).setText("");
-            }
-            //onBlur
-            else {
-                //set the text
-                String text = ((EditText)view).getText().toString();
-                if(text.equals("")) {
-                    if (view.getId() == R.id.txtUsername)
-                        ((EditText) view).setText(R.string.unameHint);
-                    else if (view.getId() == R.id.txtAge)
-                        ((EditText) view).setText(R.string.ageHint);
-                }
 
-            }
-        };
-    };
 
     private View.OnClickListener ExitApp = new View.OnClickListener() {
         @Override
@@ -101,56 +74,77 @@ public class MyActivity extends Activity {
     private View.OnClickListener loginUser = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            SQLiteDatabase database = db.getWritableDatabase();
-            database.beginTransaction();
+
             String username = ((EditText) findViewById(R.id.txtUsername)).getText().toString();
             String age = ((EditText) findViewById(R.id.txtAge)).getText().toString();
-            String gender = "Male";
+            String gender = "";
+            int radioButtonId = ((RadioGroup)findViewById(R.id.radioGroup)).getCheckedRadioButtonId();
+            System.out.println(radioButtonId);
+            if(radioButtonId > 0) {
+                gender = ((RadioButton) findViewById(radioButtonId)).getText().toString();
+            }
+            System.out.println(username + "-" + age + "-" + gender);
 
-            final Intent i = new Intent(MyActivity.this, MainActivity.class);
-            i.putExtra("username", username);
+            if(username.equals("") || age.equals("") || gender.equals("")){
+                AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(MyActivity.this);
+                dlgAlert.setMessage("Username , age or gender is invalid!");
+                dlgAlert.setTitle("Invalid");
+                dlgAlert.setPositiveButton("OK", null);
+                dlgAlert.setCancelable(true);
+                dlgAlert.create().show();
 
-            try {
-                Cursor c = database.rawQuery("SELECT username from users WHERE username=?", new String[]{username});
-                if(c.moveToFirst()){
-                    if(c.getString(c.getColumnIndex("username")).equals(username)){
-                        AlertDialog.Builder b = new AlertDialog.Builder(MyActivity.this);
-                        b.setMessage("Do you want to continue with your previous session?");
-                        b.setTitle("Username Exists");
-                        b.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                //Go To Main Activity
-                                startActivity(i);
+                dlgAlert.setPositiveButton("Ok",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
                             }
                         });
-                        b.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // User cancelled the dialog
-                                dialog.dismiss();
-                            }
-                        });
-                        AlertDialog dialog = b.create();
-                        dialog.show();
+            }
+            else {
+                final Intent i = new Intent(MyActivity.this, MainActivity.class);
+                i.putExtra("username", username);
+                SQLiteDatabase database = db.getWritableDatabase();
+                database.beginTransaction();
+                try {
+                    Cursor c = database.rawQuery("SELECT username from users WHERE username=?", new String[]{username});
+                    if (c.moveToFirst()) {
+                        if (c.getString(c.getColumnIndex("username")).equals(username)) {
+                            AlertDialog.Builder b = new AlertDialog.Builder(MyActivity.this);
+                            b.setMessage("Do you want to continue with your previous session?");
+                            b.setTitle("Username Exists");
+                            b.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    //Go To Main Activity
+                                    startActivity(i);
+                                }
+                            });
+                            b.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // User cancelled the dialog
+                                    dialog.dismiss();
+                                }
+                            });
+                            AlertDialog dialog = b.create();
+                            dialog.show();
+                        }
+
+                    } else {
+                        ContentValues values = new ContentValues();
+                        values.put("username", username);
+                        values.put("age", age);
+                        values.put("gender", gender);
+                        values.put("total_games", 0);
+                        values.put("wins", 0);
+                        database.insert("users", null, values);
+                        database.setTransactionSuccessful();
+                        //Go To Main Activity
+                        startActivity(i);
                     }
-
+                } finally {
+                    database.endTransaction();
                 }
-                else {
-                    ContentValues values = new ContentValues();
-                    values.put("username", username);
-                    values.put("age", age);
-                    values.put("gender", gender);
-                    values.put("total_games", 0);
-                    values.put("wins", 0);
-                    database.insert("users", null, values);
-                    database.setTransactionSuccessful();
-                    //Go To Main Activity
-                    startActivity(i);
-                }
-            }
-            finally {
-                database.endTransaction();
-            }
 
+            }
         }
     };
 }

@@ -95,10 +95,7 @@ public class GameEngine
             result = -1;
             this.setMessage("Paper Covers Rock");
         }
-//        else if (y==ROCK && x==ROCK)
-//        {
-//            setGames();
-//        }
+
         else if (y==ROCK && x==SCISSORS)
         {
             setWins();
@@ -111,10 +108,6 @@ public class GameEngine
             result = 1;
             this.setMessage("Paper Covers Rock");
         }
-//        else if (y==PAPER && x==PAPER)
-//        {
-//            setGames();
-//        }
         else if (y==PAPER && x==SCISSORS)
         {
             setLoss();
@@ -133,10 +126,7 @@ public class GameEngine
             result = 1;
             this.setMessage("Scissor cuts Paper");
         }
-//        else if (y==SCISSORS && x==SCISSORS)
-//        {
-//            setGames();
-//        }
+
         this.saveData();
         return result;
     }

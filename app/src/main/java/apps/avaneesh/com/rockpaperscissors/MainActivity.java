@@ -130,7 +130,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             result = ge.calc(2);
         }
         bot_choice = ge.getRandom();
-        message = choice[bot_choice] + "\n";
+        message = ge.getMessage();
 
         if(result == 1){
             title = "You Win!!";
