@@ -2,6 +2,7 @@ package apps.avaneesh.com.rockpaperscissors;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,12 +17,14 @@ import android.view.View.OnFocusChangeListener;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import apps.avaneesh.com.rockpaperscissors.RPSDatabase;
 
 public class MyActivity extends Activity {
 
     RPSDatabase db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
@@ -64,6 +67,8 @@ public class MyActivity extends Activity {
 
 
 
+
+
     private View.OnClickListener ExitApp = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -75,7 +80,7 @@ public class MyActivity extends Activity {
         @Override
         public void onClick(View view) {
 
-            String username = ((EditText) findViewById(R.id.txtUsername)).getText().toString();
+            final String username = ((EditText) findViewById(R.id.txtUsername)).getText().toString();
             String age = ((EditText) findViewById(R.id.txtAge)).getText().toString();
             String gender = "";
             int radioButtonId = ((RadioGroup)findViewById(R.id.radioGroup)).getCheckedRadioButtonId();
@@ -101,8 +106,7 @@ public class MyActivity extends Activity {
                         });
             }
             else {
-                final Intent i = new Intent(MyActivity.this, MainActivity.class);
-                i.putExtra("username", username);
+
                 SQLiteDatabase database = db.getWritableDatabase();
                 database.beginTransaction();
                 try {
@@ -114,8 +118,7 @@ public class MyActivity extends Activity {
                             b.setTitle("Username Exists");
                             b.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    //Go To Main Activity
-                                    startActivity(i);
+                                    showGameModeDialog(username);
                                 }
                             });
                             b.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -137,8 +140,8 @@ public class MyActivity extends Activity {
                         values.put("wins", 0);
                         database.insert("users", null, values);
                         database.setTransactionSuccessful();
-                        //Go To Main Activity
-                        startActivity(i);
+                        showGameModeDialog(username);
+
                     }
                 } finally {
                     database.endTransaction();
@@ -147,4 +150,37 @@ public class MyActivity extends Activity {
             }
         }
     };
+
+    public void showGameModeDialog(String username){
+
+        final Intent i = new Intent(MyActivity.this, MainActivity.class);
+        i.putExtra("username", username);
+
+
+        final Intent listIntent = new Intent(MyActivity.this, DeviceListActivity.class);
+        i.putExtra("username", username);
+
+        AlertDialog.Builder gameModeDialog = new AlertDialog.Builder(MyActivity.this);
+        gameModeDialog.setTitle("Game Mode");
+        gameModeDialog.setMessage("Single Player OR Multi Player");
+
+        gameModeDialog.setPositiveButton("Single Player", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                startActivity(i);
+            }
+        });
+
+        gameModeDialog.setNegativeButton("Multi Player", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                startActivity(listIntent);
+
+            }
+        } );
+
+        gameModeDialog.show();
+    }
+
+
 }
