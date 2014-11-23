@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainActivity extends Activity implements View.OnClickListener{
     private String mConnectedDeviceName = null;
@@ -40,14 +41,16 @@ public class MainActivity extends Activity implements View.OnClickListener{
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
     public static final String DEVICE_NAME = "device_name";
+    public static final String OPPONENT_NAME = "opponent_name";
     public static final String TOAST = "toast";
     protected static final int REQUEST_OK = 3;
 
     private TextView txtSpeech;
     protected SpeechRecognizer sr;
-    String username;
-    String deviceAddress;
+    public static String username;
     boolean isMultiPlayer = false;
+    public String opponentMove = null;
+    public String yourMove = null;
     GameEngine ge;
     Button connectBtn;
     BluetoothConnection mGameService ;
@@ -74,7 +77,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 @Override
                 public void onClick(View view) {
                     Intent i = new Intent(MainActivity.this, DeviceListActivity.class);
-                    startActivity(i);
+                    startActivityForResult(i, REQUEST_CONNECT_DEVICE);
                 }
             });
         }
@@ -137,7 +140,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 if(recordedWords[0].equals("rock") || recordedWords[0].equals("paper")
                         || recordedWords[0].equals("scissors")){
                     ((TextView) findViewById(R.id.txtSpeak)).setText(recordedWords[0].toUpperCase());
-                    showResult(recordedWords[0].toUpperCase());
+                    showResult(recordedWords[0].toUpperCase(), null);
                 }
                 else {
                     ((TextView) findViewById(R.id.txtSpeak)).setText("Try again!");
@@ -159,7 +162,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
     @Override
     public void onStart() {
         super.onStart();
-        System.out.println("onStart");
         if (!bluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
@@ -172,7 +174,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
     public synchronized void onResume(){
 
         super.onResume();
-        System.out.println("onResumeee");
         if (mGameService != null) {
             // Only if the state is STATE_NONE, do we know that we haven't started already
             if (mGameService.getState() == BluetoothConnection.STATE_NONE) {
@@ -207,12 +208,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
             
             if(isMultiPlayer){
                 String buttonText = ((Button) view).getText().toString().toUpperCase();
+                yourMove = buttonText;
+                ((TextView) findViewById(R.id.txtSpeak)).setText(buttonText);
                 sendMessage(buttonText);
             }
             else {
                 String buttonText = ((Button) view).getText().toString().toUpperCase();
                 ((TextView) findViewById(R.id.txtSpeak)).setText(buttonText);
-                showResult(buttonText);
+                showResult(buttonText, null);
             }
         }
     };
@@ -231,26 +234,36 @@ public class MainActivity extends Activity implements View.OnClickListener{
         }
     }
 
+    public void sendUsername(){
+        if(username != null)
+            sendMessage("USERNAME: "+ username);
+    }
 
 
-    private void showResult(String userChoice){
+
+    private void showResult(String userChoice, String opponentChoice){
         String choice[] = {"ROCK", "PAPER", "SCISSORS"};
         String message = "";
         String title = "";
         int result = 0;
         int bot_choice = 0;
-        if(userChoice.equals("ROCK")){
-            result = ge.calc(0);
+        if(isMultiPlayer){
+            int you = Arrays.asList(choice).indexOf(userChoice);
+            int opp = Arrays.asList(choice).indexOf(opponentChoice);
+            result = ge.calc(you, opp, true);
+            ((TextView) findViewById(R.id.txtBot)).setText(opponentChoice);
         }
-        else if(userChoice.equals("PAPER")){
-            result = ge.calc(1);
+        else {
+            if (userChoice.equals("ROCK")) {
+                result = ge.calc(0, -1, false);
+            } else if (userChoice.equals("PAPER")) {
+                result = ge.calc(1, -1, false);
+            } else if (userChoice.equals("SCISSORS")) {
+                result = ge.calc(2, -1, false);
+            }
+            bot_choice = ge.getRandom();
+            ((TextView) findViewById(R.id.txtBot)).setText(choice[bot_choice]);
         }
-        else if(userChoice.equals("SCISSORS")){
-            result = ge.calc(2);
-        }
-        bot_choice = ge.getRandom();
-        ((TextView)findViewById(R.id.txtBot)).setText(choice[bot_choice]);
-
         message = ge.getMessage();
 
         if(result == 1){
@@ -283,6 +296,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
         total_games.setText(""+ge.getGames());
         total_wins.setText(""+ge.getWins());
         dialog.show();
+        //Reset values
+        yourMove = null;
+        opponentMove = null;
     }
 
     private void setupGame() {
@@ -304,6 +320,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
     // The Handler that gets information back from the BluetoothChatService
     private final Handler mHandler = new Handler() {
+        boolean flag = true;
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -322,22 +339,42 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 case MESSAGE_WRITE:
                     byte[] writeBuf = (byte[]) msg.obj;
                     // construct a string from the buffer
+
                     String writeMessage = new String(writeBuf);
-                    Toast.makeText(getApplicationContext(), "You played "
-                            + writeMessage, Toast.LENGTH_SHORT).show();
+                    if(!writeMessage.contains("USERNAME")) {
+                        Toast.makeText(getApplicationContext(), "You played "
+                                + writeMessage, Toast.LENGTH_SHORT).show();
+                        if (opponentMove != null && yourMove != null) {
+                            showResult(yourMove, opponentMove);
+                        }
+                    }
                     break;
                 case MESSAGE_READ:
                     byte[] readBuf = (byte[]) msg.obj;
                     // construct a string from the valid bytes in the buffer
                     String readMessage = new String(readBuf, 0, msg.arg1);
-                    Toast.makeText(getApplicationContext(), "Opponent played "
-                            + readMessage, Toast.LENGTH_SHORT).show();
+                    if(readMessage.contains("USERNAME")){
+                        readMessage = readMessage.substring(readMessage.indexOf(':')+1);
+                        ((TextView)findViewById(R.id.txtOpponent)).setText(readMessage);
+                        if(flag) {
+                            sendUsername();
+                            flag = false;
+                        }
+                    }else {
+                        opponentMove = readMessage;
+                        if (opponentMove != null && yourMove != null) {
+                            showResult(yourMove, opponentMove);
+                        }
+                    }
+                    // Toast.makeText(getApplicationContext(), "Opponent played "
+                    //        + readMessage, Toast.LENGTH_SHORT).show();
                     break;
                 case MESSAGE_DEVICE_NAME:
                     // save the connected device's name
                     mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
                     Toast.makeText(getApplicationContext(), "Connected to "
                             + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                    sendUsername();
                     break;
                 case MESSAGE_TOAST:
                     Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),
