@@ -78,15 +78,18 @@ public class GameEngine
         return this.message;
     }
 
-    public int calc(int y){
+    public int calc(int y, int z, boolean isMultiPlayer){
         int x;
         String choice;
-
-        int result = 0;
-        this.setRandom();
         this.setMessage("");
-        x = this.getRandom();
-
+        int result = 0;
+        if(isMultiPlayer){
+            x = z;
+        }
+        else {
+            this.setRandom();
+            x = this.getRandom();
+        }
 
         setGames();
         if (y==ROCK && x==PAPER )

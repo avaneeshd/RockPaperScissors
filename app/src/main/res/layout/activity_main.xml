@@ -158,9 +158,9 @@
         android:id="@+id/imageView3"
         android:layout_toEndOf="@+id/btnSpeak"
         android:src="@drawable/computer"
-        android:layout_alignBottom="@+id/imageView2"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_above="@+id/tableRow"
+        android:layout_alignRight="@+id/btnConnect"
+        android:layout_alignEnd="@+id/btnConnect" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -193,6 +193,20 @@
         android:layout_alignTop="@+id/imageView"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/imageView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="opp"
+        android:id="@+id/txtOpponent"
+        android:gravity="center_vertical"
+        android:layout_toEndOf="@+id/imageView"
+        android:layout_above="@+id/txtBot"
+        android:layout_alignRight="@+id/linearlayout1"
+        android:layout_alignEnd="@+id/linearlayout1"
+        android:layout_alignTop="@+id/imgYou"
         android:layout_toRightOf="@+id/imageView" />
 
 </RelativeLayout>

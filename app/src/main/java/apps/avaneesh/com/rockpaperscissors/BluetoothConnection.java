@@ -110,6 +110,7 @@ public class BluetoothConnection {
         Message msg = mHandler.obtainMessage(MainActivity.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
         bundle.putString(MainActivity.DEVICE_NAME, device.getName());
+        bundle.putString(MainActivity.OPPONENT_NAME, MainActivity.username);
         msg.setData(bundle);
         mHandler.sendMessage(msg);
         setState(STATE_CONNECTED);
@@ -269,7 +270,16 @@ public class BluetoothConnection {
                     mmSocket.connect();
                 }
                 catch (Exception ex) {
-
+                    connectionFailed();
+                    // Close the socket
+                    try {
+                        mmSocket.close();
+                    } catch (IOException e2) {
+                        Log.e(TAG, "unable to close() socket during connection failure", e2);
+                    }
+                    // Start the service over to restart listening mode
+                    BluetoothConnection.this.start();
+                    return;
                 }
             }
             // Reset the ConnectThread because we're done
