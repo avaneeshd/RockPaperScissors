@@ -11,8 +11,11 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -26,14 +29,35 @@ public class DeviceListActivity extends Activity {
 
     List<String> s = new ArrayList<String>();
     ArrayAdapter<String> mArrayAdapter;
-
+    ListView mListView;
+    String username =null;
+    BluetoothConnection mBtConnection;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_list);
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mListView = (ListView)findViewById(R.id.listView);
+        mListView.setOnItemClickListener(mOnItemClickListener);
 
-        TurnOnBluetooth();
+        discoverDevices();
     }
+
+   ListView.OnItemClickListener mOnItemClickListener = new ListView.OnItemClickListener() {
+       @Override
+       public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+           mBluetoothAdapter.cancelDiscovery();
+           // Get the device MAC address, which is the last 17 chars in the View
+           String info = ((TextView) view).getText().toString();
+           String address = info.substring(info.length() - 17);
+           // Create the result Intent and include the MAC address
+           Intent intent = new Intent(DeviceListActivity.this, MainActivity.class);
+           intent.putExtra("deviceaddr", address);
+           setResult(Activity.RESULT_OK, intent);
+           finish();
+       }
+   };
 
     @Override
     protected void onPause() {
@@ -41,9 +65,17 @@ public class DeviceListActivity extends Activity {
         super.onPause();
 
     }
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        System.out.println("onStart");
+
+    }
 
     @Override
     protected void onResume() {
+        System.out.println("onResume");
         // Register the BroadcastReceiver
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter);
@@ -73,41 +105,26 @@ public class DeviceListActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Auto-generated method stub
-        if(requestCode == REQUEST_ENABLE_BT){
-            if(mBluetoothAdapter.isEnabled()) {
-                Toast.makeText(this, "Bluetooth is Enabled", Toast.LENGTH_SHORT).show();
-                mBluetoothAdapter.startDiscovery();
-                if(mBluetoothAdapter.isDiscovering())
-                    System.out.println("is discovering");
-                getDevices();
-            } else {
-                Toast.makeText(this, "Bluetooth is Disabled", Toast.LENGTH_SHORT).show();
-            }
-
+    public void discoverDevices(){
+        if(mBluetoothAdapter.isEnabled()) {
+            Toast.makeText(this, "Discovering devices", Toast.LENGTH_SHORT).show();
+            mBluetoothAdapter.startDiscovery();
+            if(mBluetoothAdapter.isDiscovering())
+                System.out.println("is discovering");
+            getDevices();
+        } else {
+            Toast.makeText(this, "Bluetooth is Disabled", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void TurnOnBluetooth(){
 
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth not supported", Toast.LENGTH_LONG).show();
-        }
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
-    }
 
     public void getDevices(){
 
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
         for(BluetoothDevice bt : pairedDevices)
-            s.add(bt.getName());
+            s.add(bt.getName() + " - " + bt.getAddress());
         ((ListView)findViewById(R.id.listView)).setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, s));
 
     }
@@ -122,8 +139,8 @@ public class DeviceListActivity extends Activity {
                 // Get the BluetoothDevice object from the Intent
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 // Add the name and address to an array adapter to show in a ListView
-                s.add(device.getName());
-                ((ListView)findViewById(R.id.listView)).setAdapter(new ArrayAdapter<String>(DeviceListActivity.this, android.R.layout.simple_list_item_1, s));
+                s.add(device.getName() + " - " +device.getAddress());
+                mListView.setAdapter(new ArrayAdapter<String>(DeviceListActivity.this, android.R.layout.simple_list_item_1, s));
 
             }
         }

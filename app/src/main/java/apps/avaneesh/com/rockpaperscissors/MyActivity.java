@@ -65,10 +65,6 @@ public class MyActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-
-
-
-
     private View.OnClickListener ExitApp = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -156,16 +152,13 @@ public class MyActivity extends Activity {
         final Intent i = new Intent(MyActivity.this, MainActivity.class);
         i.putExtra("username", username);
 
-
-        final Intent listIntent = new Intent(MyActivity.this, DeviceListActivity.class);
-        i.putExtra("username", username);
-
         AlertDialog.Builder gameModeDialog = new AlertDialog.Builder(MyActivity.this);
         gameModeDialog.setTitle("Game Mode");
         gameModeDialog.setMessage("Single Player OR Multi Player");
 
         gameModeDialog.setPositiveButton("Single Player", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
+                i.putExtra("isMultiPlayer", "false");
                 dialog.dismiss();
                 startActivity(i);
             }
@@ -173,8 +166,9 @@ public class MyActivity extends Activity {
 
         gameModeDialog.setNegativeButton("Multi Player", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
+                i.putExtra("isMultiPlayer", "true");
                 dialog.dismiss();
-                startActivity(listIntent);
+                startActivity(i);
 
             }
         } );
