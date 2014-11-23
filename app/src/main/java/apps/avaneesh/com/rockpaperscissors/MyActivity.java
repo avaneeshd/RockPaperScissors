@@ -24,7 +24,9 @@ import apps.avaneesh.com.rockpaperscissors.RPSDatabase;
 public class MyActivity extends Activity {
 
     RPSDatabase db;
-
+    String username;
+    String age;
+    String gender;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
@@ -76,18 +78,18 @@ public class MyActivity extends Activity {
         @Override
         public void onClick(View view) {
 
-            final String username = ((EditText) findViewById(R.id.txtUsername)).getText().toString();
-            String age = ((EditText) findViewById(R.id.txtAge)).getText().toString();
-            String gender = "";
-            int radioButtonId = ((RadioGroup)findViewById(R.id.radioGroup)).getCheckedRadioButtonId();
+            username = ((EditText) findViewById(R.id.txtUsername)).getText().toString();
+            age = ((EditText) findViewById(R.id.txtAge)).getText().toString();
+            gender = "";
+            int radioButtonId = ((RadioGroup) findViewById(R.id.radioGroup)).getCheckedRadioButtonId();
             System.out.println(radioButtonId);
-            if(radioButtonId > 0) {
+            if (radioButtonId > 0) {
                 gender = ((RadioButton) findViewById(radioButtonId)).getText().toString();
             }
             System.out.println(username + "-" + age + "-" + gender);
 
-            if(username.equals("") || age.equals("") || gender.equals("")){
-                AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(MyActivity.this);
+            if (username.equals("") || age.equals("") || gender.equals("")) {
+                AlertDialog.Builder dlgAlert = new AlertDialog.Builder(MyActivity.this);
                 dlgAlert.setMessage("Username , age or gender is invalid!");
                 dlgAlert.setTitle("Invalid");
                 dlgAlert.setPositiveButton("OK", null);
@@ -97,12 +99,10 @@ public class MyActivity extends Activity {
                 dlgAlert.setPositiveButton("Ok",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
+                                dialog.dismiss();
                             }
                         });
-            }
-            else {
-
+            } else {
                 SQLiteDatabase database = db.getWritableDatabase();
                 database.beginTransaction();
                 try {
@@ -127,22 +127,13 @@ public class MyActivity extends Activity {
                             dialog.show();
                         }
 
-                    } else {
-                        ContentValues values = new ContentValues();
-                        values.put("username", username);
-                        values.put("age", age);
-                        values.put("gender", gender);
-                        values.put("total_games", 0);
-                        values.put("wins", 0);
-                        database.insert("users", null, values);
-                        database.setTransactionSuccessful();
+                    }
+                    else {
                         showGameModeDialog(username);
-
                     }
                 } finally {
                     database.endTransaction();
                 }
-
             }
         }
     };
@@ -159,6 +150,7 @@ public class MyActivity extends Activity {
         gameModeDialog.setPositiveButton("Single Player", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 i.putExtra("isMultiPlayer", "false");
+                CreateDatabaseRecord();
                 dialog.dismiss();
                 startActivity(i);
             }
@@ -176,5 +168,27 @@ public class MyActivity extends Activity {
         gameModeDialog.show();
     }
 
+
+    public void CreateDatabaseRecord(){
+        SQLiteDatabase database = db.getWritableDatabase();
+        database.beginTransaction();
+        try {
+            Cursor c = database.rawQuery("SELECT username from users WHERE username=? AND opponent=?", new String[]{username, "_COMPUTER"});
+            if (c.getCount() == 0) {
+                    ContentValues values = new ContentValues();
+                    values.put("username", username);
+                    values.put("opponent", "_COMPUTER");
+                    values.put("age", age);
+                    values.put("gender", gender);
+                    values.put("total_games", 0);
+                    values.put("your_wins", 0);
+                    values.put("oppo_wins", 0);
+                    database.insert("users", null, values);
+                    database.setTransactionSuccessful();
+            }
+        }finally {
+            database.endTransaction();
+        }
+    }
 
 }

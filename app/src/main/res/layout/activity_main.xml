@@ -2,10 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
     tools:context="apps.avaneesh.com.rockpaperscissors.MainActivity"
     android:id="@+id/mainActivity">
 
@@ -16,7 +16,9 @@
         android:src="@drawable/rps"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/txtOpponent"
+        android:layout_toStartOf="@+id/txtOpponent" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -33,11 +35,9 @@
         android:id="@+id/btnSpeak"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/textView2"
         android:src="@drawable/microphone"
         android:layout_above="@+id/tableRow"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="36dp" />
+        android:layout_centerHorizontal="true" />
 
 
     <TableRow
@@ -76,113 +76,106 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:background="#ff28b738"
-        android:padding="5dp"
         android:layout_below="@+id/txtHello"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="34dp"
-        android:id="@+id/linearlayout1">
-
-        <TextView
+        android:id="@+id/linearlayout1"
+        android:weightSum="1"
+        >
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/total_games"
-            android:id="@+id/textView2"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_height="fill_parent"
+            android:layout_weight="0.33"
+            >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="0"
-            android:id="@+id/total_games"
-            android:layout_toEndOf="@+id/textView2"
-            android:layout_toRightOf="@+id/textView2"
-            android:layout_alignRight="@+id/txtSpeak"
-            android:layout_alignEnd="@+id/txtSpeak"
-            android:layout_alignTop="@+id/textView2" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text=" Total Games"
+                android:layout_weight="1"
+                android:id="@+id/textView2" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/wins"
-            android:id="@+id/textView3"
-            android:layout_alignParentBottom="true"
-            android:layout_alignLeft="@+id/btnSpeak"
-            android:layout_alignStart="@+id/btnSpeak"
-            android:layout_marginLeft="120dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="100"
+                android:gravity="center"
+                android:id="@+id/total_games"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
 
-        <TextView
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="0"
-            android:id="@+id/wins_score"
-            android:layout_alignParentBottom="true"
-            android:layout_toEndOf="@+id/textView3"
-            android:layout_alignRight="@+id/btnSpeak"
-            android:layout_alignEnd="@+id/btnSpeak"
-            android:layout_toRightOf="@+id/textView3" />
+            android:layout_height="fill_parent"
+            android:layout_weight="0.33"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="    You Won"
+                android:id="@+id/textView3" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="100"
+                android:id="@+id/wins_score"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.33">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="   Opponent Won"
+                android:id="@+id/textView5" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="100"
+                android:id="@+id/oppo_wins_score"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
     </LinearLayout>
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imgYou"
-        android:src="@drawable/you"
-        android:layout_toEndOf="@+id/txtHello"
-        android:layout_toStartOf="@+id/btnSpeak"
-        android:layout_above="@+id/txtBot"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView2"
-        android:src="@drawable/vs"
-        android:layout_toEndOf="@+id/imgYou"
-        android:layout_above="@+id/txtSpeak"
-        android:layout_toLeftOf="@+id/imageView3"
-        android:layout_toStartOf="@+id/imageView3" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView3"
-        android:layout_toEndOf="@+id/btnSpeak"
-        android:src="@drawable/computer"
-        android:layout_above="@+id/tableRow"
-        android:layout_alignRight="@+id/btnConnect"
-        android:layout_alignEnd="@+id/btnConnect" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/txtBot"
-        android:layout_centerVertical="true"
         android:gravity="center"
-        android:layout_alignRight="@+id/imageView3"
-        android:layout_alignEnd="@+id/imageView3"
-        android:width="120dp" />
+        android:width="120dp"
+        android:layout_below="@+id/imageView2"
+        android:layout_toRightOf="@+id/btnSpeak"
+        android:layout_toEndOf="@+id/btnSpeak" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/txtSpeak"
-        android:layout_toStartOf="@+id/btnSpeak"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:gravity="center" />
+        android:gravity="center"
+        android:layout_toLeftOf="@+id/imageView2"
+        android:layout_toStartOf="@+id/imageView2" />
 
     <Button
         android:layout_width="wrap_content"
@@ -190,23 +183,46 @@
         android:text="Connect"
         android:id="@+id/btnConnect"
         android:layout_toEndOf="@+id/imageView"
-        android:layout_alignTop="@+id/imageView"
+        android:layout_below="@+id/txtOpponent"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_toRightOf="@+id/imageView" />
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="opp"
+        android:text="Waiting for Opponent..."
         android:id="@+id/txtOpponent"
-        android:gravity="center_vertical"
-        android:layout_toEndOf="@+id/imageView"
-        android:layout_above="@+id/txtBot"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:layout_alignTop="@+id/imageView2"
         android:layout_alignRight="@+id/linearlayout1"
         android:layout_alignEnd="@+id/linearlayout1"
-        android:layout_alignTop="@+id/imgYou"
-        android:layout_toRightOf="@+id/imageView" />
+        android:layout_toEndOf="@+id/imageView2"
+        android:layout_above="@+id/txtBot"
+        android:layout_toRightOf="@+id/imageView2" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView2"
+        android:src="@drawable/vs"
+        android:layout_above="@+id/txtSpeak"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="YOU"
+        android:id="@+id/txtYou"
+        android:gravity="center"
+        android:layout_above="@+id/txtSpeak"
+        android:layout_toEndOf="@+id/txtHello"
+        android:layout_alignTop="@+id/imageView2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/imageView2"
+        android:layout_toStartOf="@+id/imageView2" />
 
 </RelativeLayout>

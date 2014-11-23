@@ -2,12 +2,11 @@ package apps.avaneesh.com.rockpaperscissors;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.hardware.Sensor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,8 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,9 +24,6 @@ import java.util.Arrays;
 
 public class MainActivity extends Activity implements View.OnClickListener{
     private String mConnectedDeviceName = null;
-    private static final int handRock     = 0;
-    private static final int handPaper    = 1;
-    private static final int handScissors = 2;
 
     private static final int REQUEST_CONNECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT      = 2;
@@ -43,17 +37,25 @@ public class MainActivity extends Activity implements View.OnClickListener{
     public static final String DEVICE_NAME = "device_name";
     public static final String OPPONENT_NAME = "opponent_name";
     public static final String TOAST = "toast";
+    public static String username;
+
     protected static final int REQUEST_OK = 3;
 
-    private TextView txtSpeech;
+    TextView txtSpeech;
+    TextView txtOpp;
     protected SpeechRecognizer sr;
-    public static String username;
-    boolean isMultiPlayer = false;
+
     public String opponentMove = null;
+    public String opponentName = null;
     public String yourMove = null;
+    boolean opponentPlayAgain = false;
+    boolean isMultiPlayer = false;
+
     GameEngine ge;
     Button connectBtn;
+
     BluetoothConnection mGameService ;
+    ProgressDialog pDialog;
     BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
     @Override
@@ -61,16 +63,23 @@ public class MainActivity extends Activity implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         connectBtn = (Button)findViewById(R.id.btnConnect);
+
+        txtSpeech = (TextView)findViewById(R.id.txtSpeak);
+        txtOpp = (TextView)findViewById(R.id.txtBot);
+
         final Intent intent = getIntent();
+        //Set Username
         username = intent.getExtras().get("username").toString();
+        TextView hello = (TextView)findViewById(R.id.txtHello);
+        hello.setText("Hello "+ username +"!!");
+
+        //Check game mode
         if(intent.getExtras().get("isMultiPlayer").equals("true")) {
-            System.out.println("isMultiplayer");
             isMultiPlayer = true;
         }
         else{
             isMultiPlayer = false;
         }
-
         if(isMultiPlayer) {
             findViewById(R.id.btnConnect).setVisibility(View.VISIBLE);
             connectBtn.setOnClickListener(new View.OnClickListener() {
@@ -80,15 +89,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     startActivityForResult(i, REQUEST_CONNECT_DEVICE);
                 }
             });
-        }
-
-
-        else{
+        }else{
+            opponentName = "COMPUTER";
+            ((TextView)findViewById(R.id.txtOpponent)).setText("COMPUTER");
             findViewById(R.id.btnConnect).setVisibility(View.INVISIBLE);
         }
-        TextView hello = (TextView)findViewById(R.id.txtHello);
-        hello.setText("Hello "+ username +"!!");
-
+        pDialog = new ProgressDialog(this);
     }
 
 
@@ -115,7 +121,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
 
                     if (mGameService == null) setupGame();
-
+                    mGameService.stop();
                     mGameService.connect(device);
                 }
                 break;
@@ -139,11 +145,17 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 }
                 if(recordedWords[0].equals("rock") || recordedWords[0].equals("paper")
                         || recordedWords[0].equals("scissors")){
-                    ((TextView) findViewById(R.id.txtSpeak)).setText(recordedWords[0].toUpperCase());
-                    showResult(recordedWords[0].toUpperCase(), null);
+                    txtSpeech.setText(recordedWords[0].toUpperCase());
+                    if(!isMultiPlayer) {
+                        showResult(recordedWords[0].toUpperCase(), null);
+                        disableButtons();
+                    }
+                    else{
+                        sendMessage(recordedWords[0].toUpperCase());
+                    }
                 }
                 else {
-                    ((TextView) findViewById(R.id.txtSpeak)).setText("Try again!");
+                    txtSpeech.setText("Try again!");
                     AlertDialog.Builder a = new AlertDialog.Builder(MainActivity.this);
                     a.setMessage("You have to speak only Rock, Paper or Scissors.");
                     a.setTitle("Try again!");
@@ -160,9 +172,29 @@ public class MainActivity extends Activity implements View.OnClickListener{
     }
 
     @Override
+    public void onBackPressed() {
+        if(isMultiPlayer) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Really Exit?")
+                    .setMessage("Game is ongoing, Are you sure you want to exit?")
+                    .setNegativeButton(android.R.string.no, null)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            mGameService.stop();
+                            MainActivity.super.onBackPressed();
+                        }
+                    }).create().show();
+        }else{
+            MainActivity.super.onBackPressed();
+        }
+    }
+
+
+    @Override
     public void onStart() {
         super.onStart();
-        if (!bluetoothAdapter.isEnabled()) {
+        if (isMultiPlayer && !bluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         }
@@ -174,7 +206,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     public synchronized void onResume(){
 
         super.onResume();
-        if (mGameService != null) {
+        if (isMultiPlayer && mGameService != null) {
             // Only if the state is STATE_NONE, do we know that we haven't started already
             if (mGameService.getState() == BluetoothConnection.STATE_NONE) {
                 // Start the Bluetooth chat services
@@ -205,16 +237,17 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private View.OnClickListener CalculateResult = new View.OnClickListener(){
         @Override
         public void onClick(View view){
-            
+
             if(isMultiPlayer){
                 String buttonText = ((Button) view).getText().toString().toUpperCase();
                 yourMove = buttonText;
-                ((TextView) findViewById(R.id.txtSpeak)).setText(buttonText);
+                txtSpeech.setText(buttonText);
                 sendMessage(buttonText);
+                disableButtons();
             }
             else {
                 String buttonText = ((Button) view).getText().toString().toUpperCase();
-                ((TextView) findViewById(R.id.txtSpeak)).setText(buttonText);
+                txtSpeech.setText(buttonText);
                 showResult(buttonText, null);
             }
         }
@@ -239,6 +272,23 @@ public class MainActivity extends Activity implements View.OnClickListener{
             sendMessage("USERNAME: "+ username);
     }
 
+    public void disableButtons(){
+        Button rock = (Button)findViewById(R.id.btnRock);
+        Button paper = (Button)findViewById(R.id.btnPaper);
+        Button scissor = (Button)findViewById(R.id.btnScissors);
+        rock.setEnabled(false);
+        paper.setEnabled(false);
+        scissor.setEnabled(false);
+    }
+
+    public void enableButtons(){
+        Button rock = (Button)findViewById(R.id.btnRock);
+        Button paper = (Button)findViewById(R.id.btnPaper);
+        Button scissor = (Button)findViewById(R.id.btnScissors);
+        rock.setEnabled(true);
+        paper.setEnabled(true);
+        scissor.setEnabled(true);
+    }
 
 
     private void showResult(String userChoice, String opponentChoice){
@@ -247,11 +297,17 @@ public class MainActivity extends Activity implements View.OnClickListener{
         String title = "";
         int result = 0;
         int bot_choice = 0;
+
+        String OKText ="OK";
+        String cancelText = "Cancel";
         if(isMultiPlayer){
+            opponentPlayAgain = false;
+            OKText = "Play Again";
+            cancelText = "End Game";
             int you = Arrays.asList(choice).indexOf(userChoice);
             int opp = Arrays.asList(choice).indexOf(opponentChoice);
             result = ge.calc(you, opp, true);
-            ((TextView) findViewById(R.id.txtBot)).setText(opponentChoice);
+            txtOpp.setText(opponentChoice);
         }
         else {
             if (userChoice.equals("ROCK")) {
@@ -262,7 +318,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 result = ge.calc(2, -1, false);
             }
             bot_choice = ge.getRandom();
-            ((TextView) findViewById(R.id.txtBot)).setText(choice[bot_choice]);
+            txtOpp.setText(choice[bot_choice]);
         }
         message = ge.getMessage();
 
@@ -275,36 +331,57 @@ public class MainActivity extends Activity implements View.OnClickListener{
         if(result == 0){
             title = "Its a draw!";
         }
+
         AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
         b.setMessage(message);
         b.setTitle(title);
-        b.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        b.setPositiveButton(OKText, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+                if(isMultiPlayer){
+                    sendMessage("PLAYAGAIN");
+                    if(!opponentPlayAgain) {
+                        pDialog.setMessage("Waiting for " + opponentName);
+                        pDialog.show();
+                    }
+                    else{
+                        Toast.makeText(getApplicationContext(),"Start Playing", Toast.LENGTH_SHORT);
+                    }
+                }
                 dialog.dismiss();
             }
         });
-        b.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        b.setNegativeButton(cancelText, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
+                if(isMultiPlayer){
+                    sendMessage("ENDGAME");
+                    mGameService.stop();
+                }
                 dialog.dismiss();
             }
         });
         AlertDialog dialog = b.create();
         TextView total_games = (TextView)findViewById(R.id.total_games);
         TextView total_wins = (TextView)findViewById(R.id.wins_score);
-
+        TextView oppo_wins = (TextView)findViewById(R.id.oppo_wins_score);
         total_games.setText(""+ge.getGames());
         total_wins.setText(""+ge.getWins());
+        oppo_wins.setText(""+ge.getOppo_wins());
+
         dialog.show();
         //Reset values
         yourMove = null;
         opponentMove = null;
+        txtOpp.setText("");
+        txtSpeech.setText("");
+        //enable RPS buttons
+        enableButtons();
     }
 
     private void setupGame() {
 
         //Start game Engine
-        ge = new GameEngine(getApplicationContext(), username);
+        ge = new GameEngine(getApplicationContext(), username, isMultiPlayer);
 
         findViewById(R.id.btnSpeak).setOnClickListener(this);
 
@@ -333,6 +410,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
                         case BluetoothConnection.STATE_LISTEN:
                             break;
                         case BluetoothConnection.STATE_NONE:
+                            findViewById(R.id.btnConnect).setVisibility(View.VISIBLE);
+                            ((TextView)findViewById(R.id.txtOpponent)).setText("Waiting for Opponent...");
                             break;
                     }
                     break;
@@ -341,7 +420,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     // construct a string from the buffer
 
                     String writeMessage = new String(writeBuf);
-                    if(!writeMessage.contains("USERNAME")) {
+                    if(!writeMessage.contains("USERNAME") && !writeMessage.contains("PLAYAGAIN") && !writeMessage.contains("ENDGAME")) {
                         Toast.makeText(getApplicationContext(), "You played "
                                 + writeMessage, Toast.LENGTH_SHORT).show();
                         if (opponentMove != null && yourMove != null) {
@@ -354,24 +433,41 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     // construct a string from the valid bytes in the buffer
                     String readMessage = new String(readBuf, 0, msg.arg1);
                     if(readMessage.contains("USERNAME")){
-                        readMessage = readMessage.substring(readMessage.indexOf(':')+1);
-                        ((TextView)findViewById(R.id.txtOpponent)).setText(readMessage);
+                        opponentName = readMessage.substring(readMessage.indexOf(':')+1);
+                        ge.setOpponent(opponentName);
+                        ge.updateScore();
+                        ((TextView)findViewById(R.id.txtOpponent)).setText(opponentName.toUpperCase());
                         if(flag) {
                             sendUsername();
                             flag = false;
                         }
-                    }else {
+                        Toast.makeText(getApplicationContext(), "You are now connected, Start Playing", Toast.LENGTH_SHORT).show();
+
+                    }else if(readMessage.contains("PLAYAGAIN")){
+                          opponentPlayAgain = true;
+                          if(pDialog.isShowing()) {
+                              Toast.makeText(getApplicationContext(), "Start Playing", Toast.LENGTH_SHORT).show();
+                              pDialog.hide();
+                          }
+                    }else if(readMessage.contains("ENDGAME")){
+                          pDialog.hide();
+                          mGameService.stop();
+                          Toast.makeText(getApplicationContext(),"Opponent cancelled. disconnecting...",Toast.LENGTH_SHORT).show();
+                    }else{
                         opponentMove = readMessage;
-                        if (opponentMove != null && yourMove != null) {
+                        if (yourMove == null) {
+                            Toast.makeText(getApplicationContext(), "Opponent played , Waiting for your move", Toast.LENGTH_SHORT).show();
+                        }
+                        else if (opponentMove != null && yourMove != null) {
                             showResult(yourMove, opponentMove);
                         }
+
                     }
-                    // Toast.makeText(getApplicationContext(), "Opponent played "
-                    //        + readMessage, Toast.LENGTH_SHORT).show();
                     break;
                 case MESSAGE_DEVICE_NAME:
                     // save the connected device's name
                     mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                    findViewById(R.id.btnConnect).setVisibility(View.INVISIBLE);
                     Toast.makeText(getApplicationContext(), "Connected to "
                             + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
                     sendUsername();

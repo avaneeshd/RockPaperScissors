@@ -12,11 +12,13 @@ import android.util.Log;
 
 public class GameEngine
 {
+    private boolean isMultiPlayer;
     private int bot_random;
     private int user_wins = 0;
     private int user_games= 0;
-    private int user_loss = 0;
+    private int oppo_wins = 0;
     private String uname;
+    private String oppo;
     final private int ROCK = 0;
     final private int PAPER = 1;
     final private int SCISSORS = 2;
@@ -24,30 +26,76 @@ public class GameEngine
     SQLiteDatabase database;
     RPSDatabase db;
 
-    GameEngine(Context context, String username){
+    GameEngine(Context context, String username, boolean isMP){
         this.uname = username;
+        this.isMultiPlayer = isMP;
+
         db = new RPSDatabase(context);
         database = db.getWritableDatabase();
-        Cursor c = database.rawQuery("SELECT username, wins, total_games from users WHERE username=?", new String[]{username});
-        if(c.moveToFirst()){
-            if(c.getString(c.getColumnIndex("username")).equals(username)) {
-                System.out.println(c.getString((c.getColumnIndex("wins"))));
-                System.out.println(c.getString((c.getColumnIndex("total_games"))));
-               if(c.getString(c.getColumnIndex("wins"))!= null){
-                   this.user_wins = Integer.parseInt(c.getString(c.getColumnIndex("wins")));
-               }
-               if(c.getString(c.getColumnIndex("total_games"))!=null){
-                   this.user_games = Integer.parseInt(c.getString(c.getColumnIndex("total_games")));
-               }
+
+        if(!isMultiPlayer) {
+            this.oppo= "_COMPUTER";
+            Cursor c = database.rawQuery("SELECT username, your_wins, oppo_wins, total_games from users WHERE username=? AND opponent=?", new String[]{username, this.oppo});
+            if (c.moveToFirst()) {
+                if (c.getString(c.getColumnIndex("username")).equals(username)) {
+                    System.out.println(c.getString((c.getColumnIndex("your_wins"))));
+                    System.out.println(c.getString((c.getColumnIndex("total_games"))));
+                    if (c.getString(c.getColumnIndex("your_wins")) != null) {
+                        this.user_wins = Integer.parseInt(c.getString(c.getColumnIndex("your_wins")));
+                    }
+                    if (c.getString(c.getColumnIndex("total_games")) != null) {
+                        this.user_games = Integer.parseInt(c.getString(c.getColumnIndex("total_games")));
+                    }
+                    if (c.getString(c.getColumnIndex("oppo_wins")) != null) {
+                        this.oppo_wins = Integer.parseInt(c.getString(c.getColumnIndex("oppo_wins")));
+                    }
+                }
             }
-         }
+        }
     }
+
+    public void updateScore() {
+        if (isMultiPlayer) {
+            Cursor c = database.rawQuery("SELECT username, opponent, your_wins, oppo_wins, total_games from users WHERE username=? AND opponent=?", new String[]{this.uname, this.oppo});
+            if (c.getCount() > 0 && c.moveToFirst()) {
+                if (c.getString(c.getColumnIndex("username")).equals(this.uname) && c.getString(c.getColumnIndex("opponent")).equals(this.oppo)) {
+                    if (c.getString(c.getColumnIndex("your_wins")) != null) {
+                        this.user_wins = Integer.parseInt(c.getString(c.getColumnIndex("your_wins")));
+                    }
+                    if (c.getString(c.getColumnIndex("total_games")) != null) {
+                        this.user_games = Integer.parseInt(c.getString(c.getColumnIndex("total_games")));
+                    }
+                    if (c.getString(c.getColumnIndex("oppo_wins")) != null) {
+                        this.oppo_wins = Integer.parseInt(c.getString(c.getColumnIndex("oppo_wins")));
+                    }
+                }
+            }
+            else {
+                // database.beginTransaction();
+                ContentValues values = new ContentValues();
+                values.put("username", this.uname);
+                values.put("opponent", this.oppo);
+                values.put("age", "10");
+                values.put("gender", "Male");
+                values.put("total_games", 0);
+                values.put("your_wins", 0);
+                values.put("oppo_wins", 0);
+                database.insert("users", null, values);
+                // database.endTransaction();
+            }
+        }
+    }
+
     public int getRandom(){
         return this.bot_random;
     }
 
     public int getWins(){
         return this.user_wins;
+    }
+
+    public int getOppo_wins(){
+        return this.oppo_wins;
     }
 
     public int getGames(){
@@ -62,14 +110,13 @@ public class GameEngine
         this.user_games++;
     }
 
-    public void setLoss()
-    {
-        this.user_loss++;
-    }
+    public void setOppoWin()  { this.oppo_wins++; }
 
     public void setRandom(){
         this.bot_random = (int)(Math.random()*3);
     }
+
+    public void setOpponent(String opponent){ this.oppo = opponent; }
 
     public void setMessage(String msg){
         this.message = msg;
@@ -94,7 +141,7 @@ public class GameEngine
         setGames();
         if (y==ROCK && x==PAPER )
         {
-            setLoss();
+            setOppoWin();
             result = -1;
             this.setMessage("Paper Covers Rock");
         }
@@ -113,13 +160,13 @@ public class GameEngine
         }
         else if (y==PAPER && x==SCISSORS)
         {
-            setLoss();
+            setOppoWin();
             result = -1;
             this.setMessage("Scissor cuts Paper");
         }
         else if (y==SCISSORS && x==ROCK)
         {
-            setLoss();
+            setOppoWin();
             result = -1;
             this.setMessage("Rock Crushes Scissors");
         }
@@ -138,7 +185,7 @@ public class GameEngine
         database = db.getWritableDatabase();
         database.beginTransaction();
         try {
-            database.execSQL("UPDATE users SET total_games ="+ this.getGames()+ ", wins ="+ this.getWins()+" WHERE username ='"+ uname +"'");
+            database.execSQL("UPDATE users SET total_games ="+ this.getGames()+ ", your_wins ="+ this.getWins()+", oppo_wins="+ this.getOppo_wins() +" WHERE username ='"+ uname +"' AND opponent ='"+ oppo +"'");
             database.setTransactionSuccessful();
             Log.d("database", uname);
         }
