@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -110,6 +111,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     startActivityForResult(i, REQUEST_CONNECT_DEVICE);
                 }
             });
+            disableButtons();
         }else{  //Single Player setup
             opponentName = "COMPUTER";
             ((TextView)findViewById(R.id.txtOpponent)).setText(opponentName);
@@ -169,10 +171,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     txtSpeech.setText(recordedWords[0].toUpperCase());
                     if(!isMultiPlayer) {
                         showResult(recordedWords[0].toUpperCase(), null);
-                        disableButtons();
                     }
                     else{
                         sendMessage(recordedWords[0].toUpperCase());
+                        disableButtons();
                     }
                 }
                 else {
@@ -297,12 +299,16 @@ public class MainActivity extends Activity implements View.OnClickListener{
         rock.setEnabled(false);
         paper.setEnabled(false);
         scissor.setEnabled(false);
+        ImageButton btnSpeak = (ImageButton)findViewById(R.id.btnSpeak);
+        btnSpeak.setEnabled(false);
     }
 
     public void enableButtons(){
         rock.setEnabled(true);
         paper.setEnabled(true);
         scissor.setEnabled(true);
+        ImageButton btnSpeak = (ImageButton)findViewById(R.id.btnSpeak);
+        btnSpeak.setEnabled(true);
     }
     public void updateScoreOnUI(){
 
@@ -477,7 +483,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                             flag = false;
                         }
                         Toast.makeText(getApplicationContext(), getResources().getString(R.string.now_connected), Toast.LENGTH_SHORT).show();
-
+                        enableButtons();
                     }else if(readMessage.contains(MESSAGE_PLAY_AGAIN)){
                           opponentPlayAgain = true;
                           if(pDialog.isShowing()) {
