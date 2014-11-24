@@ -103,7 +103,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="100"
+                android:text="0"
                 android:gravity="center"
                 android:id="@+id/total_games"
                 android:layout_alignParentBottom="true"
@@ -127,7 +127,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="100"
+                android:text="0"
                 android:id="@+id/wins_score"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true" />
@@ -147,7 +147,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="100"
+                android:text="0"
                 android:id="@+id/oppo_wins_score"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true" />

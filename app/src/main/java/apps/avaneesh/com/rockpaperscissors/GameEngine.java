@@ -71,7 +71,6 @@ public class GameEngine
                 }
             }
             else {
-                // database.beginTransaction();
                 ContentValues values = new ContentValues();
                 values.put("username", this.uname);
                 values.put("opponent", this.oppo);
@@ -81,7 +80,6 @@ public class GameEngine
                 values.put("your_wins", 0);
                 values.put("oppo_wins", 0);
                 database.insert("users", null, values);
-                // database.endTransaction();
             }
         }
     }

@@ -19,5 +19,9 @@
     <string name="total_games">Total Games:</string>
     <string name="wins">You Won:</string>
     <string name="title_activity_device_list">DeviceListActivity</string>
+    <string name="now_connected">You are now connected, Start Playing</string>
+    <string name="opponent_cancelled">Opponent cancelled. disconnecting...</string>
+    <string name="opponent_played">Opponent played , Waiting for your move</string>
+    <string name="start_playing">Start Playing</string>
 
 </resources>
