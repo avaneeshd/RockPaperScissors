@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -32,6 +31,10 @@
         <activity
             android:name="apps.avaneesh.com.rockpaperscissors.DeviceListActivity"
             android:label="@string/title_activity_device_list" >
+        </activity>
+        <activity
+            android:name="apps.avaneesh.com.rockpaperscissors.LeaderboardActivity"
+            android:label="@string/title_activity_leaderboard" >
         </activity>
     </application>
 

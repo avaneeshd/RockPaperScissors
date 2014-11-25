@@ -88,11 +88,24 @@ public class MainActivity extends Activity implements View.OnClickListener{
         total_wins = (TextView)findViewById(R.id.wins_score);
         oppo_wins = (TextView)findViewById(R.id.oppo_wins_score);
 
+
+
         final Intent intent = getIntent();
         //Set Username
         username = intent.getExtras().get("username").toString();
         TextView hello = (TextView)findViewById(R.id.txtHello);
         hello.setText("Hello "+ username +"!!");
+
+
+        Button btnLeaderboard = (Button)findViewById(R.id.btnLeaderboard);
+        btnLeaderboard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, LeaderboardActivity.class);
+                i.putExtra("username", username);
+                startActivity(i);
+            }
+        });
 
         //Check game mode
         if(intent.getExtras().get("isMultiPlayer").equals("true")) {
@@ -174,6 +187,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     }
                     else{
                         sendMessage(recordedWords[0].toUpperCase());
+                        yourMove = recordedWords[0].toUpperCase();
                         disableButtons();
                     }
                 }
@@ -204,6 +218,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                         public void onClick(DialogInterface arg0, int arg1) {
+                            sendMessage(MESSAGE_END_GAME);
+                            opponentName = "";
                             mGameService.stop();
                             MainActivity.super.onBackPressed();
                         }

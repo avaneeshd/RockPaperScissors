@@ -245,4 +245,13 @@
         android:layout_toLeftOf="@+id/imageView2"
         android:layout_toStartOf="@+id/imageView2" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ScoreBoard"
+        android:id="@+id/btnLeaderboard"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/txtBot"
+        android:layout_alignStart="@+id/txtBot" />
+
 </RelativeLayout>
